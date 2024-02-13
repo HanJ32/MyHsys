@@ -1,2 +1,0 @@
-E:/GCC/bin/ar.exe qc libHsysMathatMathUtil.a CMakeFiles/HsysMathatMathUtil.dir/MathUtil.cpp.obj CMakeFiles/HsysMathatMathUtil.dir/EulerAngles.cpp.obj CMakeFiles/HsysMathatMathUtil.dir/Quaternion.cpp.obj CMakeFiles/HsysMathatMathUtil.dir/RotationMatrix.cpp.obj CMakeFiles/HsysMathatMathUtil.dir/Matrix4x3.cpp.obj
-E:/GCC/bin/ranlib.exe libHsysMathatMathUtil.a
