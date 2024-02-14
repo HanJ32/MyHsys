@@ -1,4 +1,4 @@
-using Hsys.Private_Hsys;
+ï»¿using Hsys.Private_Hsys;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Hsys
 {
     namespace Private_Hsys
     {
-        //Ä£¿é·ÖÀà
+        //æ¨¡å—åˆ†ç±»
         public enum loadmodelclassification
         {
             EFFECTS_2D,
@@ -20,88 +20,85 @@ namespace Hsys
             EFFECTS_POStPROCESSING
         }
 
-        //Ê¹ÓÃÁËÊ²Ã´Ä£¿é
+        //ä½¿ç”¨äº†ä»€ä¹ˆæ¨¡å—
         public enum usingwhatmodels
         {
 
         }
 
-        //´æ´¢¼ÓÔØScriptµÄĞÅÏ¢£¬Json¼ÓÔØ
+        //shader çš„è®¡ç®—å¤æ‚åº¦ è¶Šé«˜æ€§èƒ½å¼€é”€è¶Šå¤§,è´¨é‡è¶Šé«˜ å¯è°ƒå‚æ•°æ›´å¤š
+        //ä¸­ä½çº§ åœ¨ç»å¤§åœºåˆé€‚ç”¨
+        public enum modellevel
+        {
+            None,
+            LOW,
+            MIDDLE,
+            HEIGH
+        }
+
+        //å­˜å‚¨åŠ è½½Scriptçš„ä¿¡æ¯ï¼ŒJsonåŠ è½½
         [Serializable]
         public class LoadScriptInfo
         {
             public List<ScriptInfo> info;
         }
 
-        //JsonÊ¹ÓÃµÄ×Ó´æ´¢ĞòÁĞ
+        //Jsonä½¿ç”¨çš„å­å­˜å‚¨åºåˆ—
         [Serializable]
         public class ScriptInfo
         {                               //x32
-            public int id;              //¼ÓÔØµÄ±àºÅ // 4
-            public int classification;  //ËùÊö·ÖÀà 0:EFFECTS_2D     1:EFFECTS_3D    2:EFFECTS_POStPROCESSING //4
-            public string name;         //ÎÄ¼şÃû // 8
-            public string path;         //ÎÄ¼şËùÔÚµØ//8
+            public int id;              //åŠ è½½çš„ç¼–å· // 4 //å¼€å‘æ—¶è¿½è¸ªé”™è¯¯ç”¨çš„
+            public int modellevel;      //æ•ˆæœä¸å¤æ‚åº¦çº§åˆ«
+            public int classification;  //æ‰€è¿°åˆ†ç±» 0:EFFECTS_2D     1:EFFECTS_3D    2:EFFECTS_POStPROCESSING //4
+            public string name;         //æ–‡ä»¶å // 8
+            public string path;         //æ–‡ä»¶æ‰€åœ¨åœ°//8
         }
 
-        //Ö÷ÒªÊ¹ÓÃµÄ
+        //ä¸»è¦ä½¿ç”¨çš„
         public struct UseScriptObject
         {
             public loadmodelclassification classifimation;
-            //°ó¶¨µ½µÄ¶ÔÏó
+            //ç»‘å®šåˆ°çš„å¯¹è±¡
             public GameObject m_obj;
         }
     }
 
-    //²Ëµ¥À¸
+    //èœå•æ 
     public class MainMenu : EditorWindow
     {
-        //ÕıÔÚ¼¤»îµÄÏà»ú¶ÔÏó£¬¸øºó´¦ÀíÊ¹ÓÃ
-        private static Camera m_camera;
+        //æ­£åœ¨æ¿€æ´»çš„ç›¸æœºå¯¹è±¡ï¼Œç»™åå¤„ç†ä½¿ç”¨
+        private Camera m_camera;
 
         private List<UseScriptObject> m_listofsptobj;
-        //¼ÓÔØµÄ½Å±¾
-        private static ImagesOr2DEffectsItem m_image_or_2d_effects;
-        private static ModelsOr3DEffectsItem m_model_or_3d_effects;
-        private static PostProcessingItem m_post_processing;
+
+        //jsoné…ç½® Default path
+        private string m_path = GlobalVar.Default_path;
+        private JsonLoadScriptInfo m_json_load_scriptinfo;
+
 
         private void OnEnable()
         {
             m_listofsptobj = new List<UseScriptObject>();
-
+            m_json_load_scriptinfo = new JsonLoadScriptInfo(m_path, ref m_listofsptobj);
+            
         }
 
-        [UnityEditor.MenuItem("Tools/Hsys/Effects/2D"), Tooltip("2DĞ§¹û")]
-        private static void ImagesOr2DEffects()
-        {
-            if (m_image_or_2d_effects == null)
-            {
-                m_image_or_2d_effects = new ImagesOr2DEffectsItem();
-            }
+        //[UnityEditor.MenuItem("Tools/Hsys/Effects/2D"), Tooltip("2Dæ•ˆæœ")]
+        
+        //[UnityEditor.MenuItem("Tools/Hsys/Effects/3D"), Tooltip("3Dæ•ˆæœ")]
 
-            Debug.Log("ImagesOr2DEffects");
-        }
-        [UnityEditor.MenuItem("Tools/Hsys/Effects/3D"), Tooltip("3DĞ§¹û")]
-        private static void ModelsOr3DEffects()
-        {
-            if (m_model_or_3d_effects == null)
-            {
-                m_model_or_3d_effects = new ModelsOr3DEffectsItem();
-            }
-            Debug.Log("ModelsOr3DEffects");
-        }
-
-        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing"), Tooltip("ºó´¦ÀíĞ§¹û")]
-        private static void PostProcessings()
+        //[UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing"), Tooltip("åå¤„ç†æ•ˆæœ")]
+/*        private void PostProcessings()
         {
             m_camera = GameObject.FindObjectOfType<Camera>();
             if (m_camera == null) { return; }
-            if (m_post_processing == null)
+            if (Private_Hsys.GlobalVar.m_post_processing == null)
             {
-                m_post_processing = new PostProcessingItem();
+                Private_Hsys.GlobalVar.m_post_processing = new PostProcessingItem(ref m_camera);
             }
         }
-
-        [UnityEditor.MenuItem("Tools/Hsys/Effects/Setting"), Tooltip("ÉèÖÃ")]
+*/
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/Setting"), Tooltip("è®¾ç½®")]
         private static void Setting()
         {
             EditorWindow mywindow = EditorWindow.GetWindow(typeof(MainMenu), true, "HsysEffects");
@@ -113,8 +110,9 @@ namespace Hsys
         //=====================================================
         private SerializedObject _serializedObject = null;
         private SerializedProperty _serializedProperty = null;
+        private modellevel _modelLevel = modellevel.None;
         //=====================================================
-        //»æÖÆ²å¼şÄÚÈİ
+        //ç»˜åˆ¶æ’ä»¶å†…å®¹
         private void OnGUI()
         {
             GUIContent content = new GUIContent();
@@ -126,41 +124,60 @@ namespace Hsys
             mytitlestyle.normal.textColor = Color.white;
             GUILayout.Label(content, mytitlestyle);
 
-            GUILayout.Space(10);
+            //GUILayout.Space(10);
             //_serializedObject.Update();
-            EditorGUI.BeginChangeCheck();
-            _serializedObject = new SerializedObject(this);
-            _serializedProperty = _serializedObject.FindProperty("m_load_script_info");
-            EditorGUILayout.PropertyField(_serializedProperty,true);
+            //EditorGUI.BeginChangeCheck();
+            //_serializedObject = new SerializedObject(this);
+            //_serializedProperty = _serializedObject.FindProperty("m_load_script_info");
+            //EditorGUILayout.PropertyField(_serializedProperty,true);
 
-            if (EditorGUI.EndChangeCheck())
-            {//Ìá½»ĞŞ¸Ä
-                _serializedObject.ApplyModifiedProperties();
-            }
+            //if (EditorGUI.EndChangeCheck())
+            //{//æäº¤ä¿®æ”¹
+            //   _serializedObject.ApplyModifiedProperties();
+            //}
 
             GUILayout.Space(10);
-            GUILayoutOption guiop;
-            guiop = GUILayout.MinHeight(80);
-            guiop = GUILayout.MaxHeight(80);
-            if (GUILayout.Button("SaveSetting", guiop))
+            GUILayout.Label("è®¾ç½®(Setting)");
+
+            _modelLevel = (modellevel)EditorGUILayout.EnumPopup("æ•ˆæœä¸å¤æ‚åº¦çº§åˆ«" ,_modelLevel);
+
+            m_path = EditorGUILayout.TextField("é…ç½®æ–‡ä»¶è·¯å¾„",m_path);
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+
+            //GUIStyle mytitlestyle2 = new GUIStyle();
+            //mytitlestyle2.alignment = TextAnchor.MiddleCenter;
+            //GUILayout.BeginArea(new Rect(50,50,150,150), mytitlestyle2);
+            /*            GUILayoutOption guiop;
+                        guiop = GUILayout.MinHeight(50);
+                        guiop = GUILayout.MaxHeight(50);
+                        guiop = GUILayout.MaxWidth(50);
+                        guiop = GUILayout.MinWidth(50);*/
+
+            //GUILayout.BeginArea(new Rect(50,50,100,100));
+            if (GUILayout.Button("SaveSetting"))
             {
-
+                OnChilkSaveSetting();
             }
-            if (GUILayout.Button("AddSetting", guiop))
+            if (GUILayout.Button("AddSetting"))
             {
-
+                OnChilkAddSetting();
             }
+            //GUILayout.EndArea();
+            GUILayout.EndHorizontal();
 
 
 
-            //Ó¦ÓÃ²¢Ë¢ĞÂËùÓĞÅäÖÃ
+            //GUILayout.BeginArea(new Rect(50, 50, 150, 150));
+            //åº”ç”¨å¹¶åˆ·æ–°æ‰€æœ‰é…ç½®
             GUILayout.Space(10);
             if (GUILayout.Button("Apply"))
             {
+                OnChilkApply();
                 Debug.Log("Apply");
             }
 
-            //É¾³ıËùÓĞ±»°ó¶¨µÄ½Å±¾»ò¶ÔÏó
+            //åˆ é™¤æ‰€æœ‰è¢«ç»‘å®šçš„è„šæœ¬æˆ–å¯¹è±¡
             GUILayout.Space(10);
             if (GUILayout.Button("ClearAll"))
             {
@@ -169,69 +186,255 @@ namespace Hsys
             }
         }
 
-        //==========================°´¼üÊµÏÖ==================================
+        //==========================æŒ‰é”®å®ç°==================================
+        private void OnChilkSaveSetting()
+        {
+
+        }
+        private void OnChilkAddSetting()
+        {
+
+        }
+        private void OnChilkApply()
+        {
+
+        }
         private void OnChilkClearAll()
         {
-            
+
         }
     }
 
+    public class UIEffectsItem
+    {
+        public List<object> myobj;
+        public UIEffectsItem()
+        {
+        }
+        public void LoadScript<T>() where T : new()
+        {
+            if (myobj == null) { return; }
+            for (int index = 0; index < myobj.Count; index += 1)
+            {
+                myobj.Add(new T());
+            }
+        }
+    }
+
+    public class UIEffectsMenuItem
+    {
+        private static UIEffectsItem m_ui_effects = null;
+        private void CreateImagesOr2DEffects()
+        {
+            if (m_ui_effects == null)
+            {
+                m_ui_effects = new UIEffectsItem();
+            }
+
+            Debug.Log("ImagesOr2DEffects");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/UI/one"), Tooltip("test")]
+        private static void One()
+        {
+
+        }
+    }
+
+    //ImagesOr2DEffects æ•°æ®é¡¹
     public class ImagesOr2DEffectsItem
     {
+        public List<object> myobj;
         public ImagesOr2DEffectsItem()
         {
-            LoadScript();
         }
-        private void LoadScript()
+        public void LoadScript<T>() where T : new()
         {
-
+            if (myobj == null) { return; }
+            for (int index = 0; index < myobj.Count; index += 1)
+            {
+                myobj.Add(new T());
+            }
         }
-
     }
 
+    //ImagesOr2DEffects èœå•é¡¹   
+    public class ImagesOr2DEffectsMenuItem : Editor
+    {
+        //åŠ è½½çš„è„šæœ¬
+        public ImagesOr2DEffectsItem m_image_or_2d_effects;
+        private void CreateImagesOr2DEffects()
+        {
+            if (m_image_or_2d_effects == null)
+            {
+                m_image_or_2d_effects = new ImagesOr2DEffectsItem();
+            }
+
+            Debug.Log("ImagesOr2DEffects");
+        }
+
+
+        private void OnEnable()
+        {
+            CreateImagesOr2DEffects();
+        }
+
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/2D/one"), Tooltip("test")]
+        private static void One()
+        {
+            Debug.Log("one");
+        }
+
+        //ImagesOr2DEffects æ•°æ®é¡¹
+    public class ImagesOr2DEffectsItem
+    {
+        public List<object> myobj;
+        public ImagesOr2DEffectsItem()
+        {
+        }
+        public void LoadScript<T>() where T : new()
+        { 
+            if (myobj == null) { return; }
+            for(int index = 0; index < myobj.Count; index+=1)
+            {
+                myobj.Add(new T());
+            }
+        }
+    }
+    }
+
+
+    //ModelsOr3DEffects æ•°æ®é¡¹
     public class ModelsOr3DEffectsItem
     {
-
+        public List<object> myobj;
         public ModelsOr3DEffectsItem()
         {
-            LoadScript();
         }
-        private void LoadScript()
+        public void LoadScript<T>() where T : new()
         {
-
+            if (myobj == null) { return; }
+            for (int index = 0; index < myobj.Count; index += 1)
+            {
+                myobj.Add(new T());
+            }
         }
     }
 
+
+    //ModelsOr3DEffects èœå•é¡¹
+    public class ModelsOr3DEffectsMenuItem : Editor
+    {
+        public ModelsOr3DEffectsItem m_model_or_3d_effects = null;
+        private void CreateModelsOr3DEffects()
+        {
+            if (m_model_or_3d_effects == null)
+            {
+                m_model_or_3d_effects = new ModelsOr3DEffectsItem();
+            }
+            Debug.Log("ModelsOr3DEffects");
+        }
+
+        private void OnEnable()
+        {
+            CreateModelsOr3DEffects();
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/3D/one"), Tooltip("test")]
+        private static void One()
+        {
+            Debug.Log("one");
+        }
+    }
 
     public class PostProcessingItem
     {
-        public PostProcessingItem()
+        private Camera m_camera;
+        public List<object> myobj;
+        public PostProcessingItem(ref Camera _camera)
         {
-            LoadScript();
+            m_camera = _camera;
         }
-        private void LoadScript()
+        public void LoadScript<T>() where T : new()
         {
+            if (myobj == null) { return; }
+            for (int index = 0; index < myobj.Count; index += 1)
+            {
+                myobj.Add(new T());
+            }
+        }
 
+        public void LoadWaterBl()
+        {
+            if (myobj == null) { Debug.Log("æœªåŠ è½½é…ç½®æ–‡ä»¶, æ”¹ä¸ºè‡ªåŠ è½½"); }
+            if (m_camera == null) { Debug.Log("æˆ‘ä¸çŸ¥é“ä½ çš„æ‘„åƒæœºåœ¨å“ª Add Component ==> Camera "); return; }
+            HsysWaterBl waterbl = m_camera.gameObject.GetComponent<HsysWaterBl>();
+            if(waterbl != null)
+            {
+                Debug.Log("å·²å­˜åœ¨è¯¥ç»„ä»¶ Coponent ==>  WaterBl");
+                if (waterbl._Material == null)
+                {
+                    waterbl._Material = new Material(Shader.Find("Hsys/WaterBl"));
+                }
+                return;
+            }
+            m_camera.gameObject.AddComponent<HsysWaterBl>();
+            waterbl = m_camera.gameObject.GetComponent<HsysWaterBl>();
+            waterbl._Material = new Material(Shader.Find("Hsys/WaterBl"));
         }
+    }
+
+    public class PostProcessingMenuItem
+    { 
+        //é™æ€å®ä¾‹
+        private static PostProcessingItem m_post_processing = null;
+        private static Camera m_camera = null;
+
+        private static void CreatePostProcessing()
+        {
+            if(m_camera == null)
+            {
+                m_camera = GameObject.FindObjectOfType<Camera>();
+            }
+            if (m_post_processing == null)
+            {
+                m_post_processing = new PostProcessingItem(ref m_camera);
+            }
+
+            Debug.Log("PostProcessingMenuItem");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/WaterBl"), Tooltip("å±å¹•æ°´æ³¢çº¹æ•ˆæœ(åå¤„ç†)")]
+        private static void WaterBl()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] æˆ‘ä¸çŸ¥é“ä½ çš„æ‘„åƒæœºåœ¨å“ª Add Component ==> Camera"); return; }
+            m_post_processing.LoadWaterBl();
+        }
+
+        
     }
 
 
 
+    //==========================================================================================================
 
-    //È«¾ÖJson LoadScriptInfo ¹ÜÀí
+    //å…¨å±€Json LoadScriptInfo ç®¡ç†
     public class JsonLoadScriptInfo
     {
 
-        //µ±Ç°±»¼¤»îµÄÎÄ¼şÂ·¾¶
+        //å½“å‰è¢«æ¿€æ´»çš„æ–‡ä»¶è·¯å¾„
         private string m_active_path = null;
         private string json_format = null;
         private LoadScriptInfo m_load_script_info;
         public JsonLoadScriptInfo(string _path, ref List<UseScriptObject> _description)
         {
+            if (_path == null || _path == "" || _path == " " || _path == string.Empty) { Debug.Log("æ–‡ä»¶é…ç½®æœªåŠ è½½ NULL"); return; }
             m_active_path = _path;
-            //¶ÁÈ¡µ½µÄJSONÄÚÈİ
+            //è¯»å–åˆ°çš„JSONå†…å®¹
             json_format = System.IO.File.ReadAllText(_path);
-            //½âÂë
+            //è§£ç 
             m_load_script_info = JsonUtility.FromJson<LoadScriptInfo>(json_format);
             InitUseScriptObject(ref _description);
         }
@@ -275,6 +478,45 @@ namespace Hsys
                         break;
                 }
             }
+        }
+    }
+
+
+
+    //é»˜è®¤é…ç½®è·¯å¾„
+    namespace Private_Hsys
+    {
+        public class IsJsonOnLoadDefault
+        {
+            [SerializeField] private LoadScriptInfo m_default;
+            public void Create()
+            {
+                Init();
+                if(m_default == null) { Debug.LogWarning("Not This Json File"); return; }
+                ScriptInfo myscript = new ScriptInfo();
+                myscript.name = "xxx";
+                myscript.path = "xxx";
+                myscript.id = 0;
+                myscript.classification = 0;
+                m_default.info.Add(myscript);
+
+
+                
+                System.IO.File.WriteAllText(GlobalVar.Default_path, JsonUtility.ToJson(m_default));
+            }
+
+            private void Init()
+            {
+                if(m_default == null)
+                {
+                    m_default = new LoadScriptInfo();
+                }
+            }
+        }
+
+        public struct GlobalVar
+        {
+            public const string Default_path = "C:\\Users\\ASUS-PC\\Documents\\å›¾å½¢\\AAa.JSON";
         }
     }
 }
