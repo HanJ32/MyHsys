@@ -80,24 +80,24 @@ namespace Hsys
         {
             m_listofsptobj = new List<UseScriptObject>();
             m_json_load_scriptinfo = new JsonLoadScriptInfo(m_path, ref m_listofsptobj);
-            
+
         }
 
         //[UnityEditor.MenuItem("Tools/Hsys/Effects/2D"), Tooltip("2D效果")]
-        
+
         //[UnityEditor.MenuItem("Tools/Hsys/Effects/3D"), Tooltip("3D效果")]
 
         //[UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing"), Tooltip("后处理效果")]
-/*        private void PostProcessings()
-        {
-            m_camera = GameObject.FindObjectOfType<Camera>();
-            if (m_camera == null) { return; }
-            if (Private_Hsys.GlobalVar.m_post_processing == null)
-            {
-                Private_Hsys.GlobalVar.m_post_processing = new PostProcessingItem(ref m_camera);
-            }
-        }
-*/
+        /*        private void PostProcessings()
+                {
+                    m_camera = GameObject.FindObjectOfType<Camera>();
+                    if (m_camera == null) { return; }
+                    if (Private_Hsys.GlobalVar.m_post_processing == null)
+                    {
+                        Private_Hsys.GlobalVar.m_post_processing = new PostProcessingItem(ref m_camera);
+                    }
+                }
+        */
         [UnityEditor.MenuItem("Tools/Hsys/Effects/Setting"), Tooltip("设置")]
         private static void Setting()
         {
@@ -139,9 +139,9 @@ namespace Hsys
             GUILayout.Space(10);
             GUILayout.Label("设置(Setting)");
 
-            _modelLevel = (modellevel)EditorGUILayout.EnumPopup("效果与复杂度级别" ,_modelLevel);
+            _modelLevel = (modellevel)EditorGUILayout.EnumPopup("效果与复杂度级别", _modelLevel);
 
-            m_path = EditorGUILayout.TextField("配置文件路径",m_path);
+            m_path = EditorGUILayout.TextField("配置文件路径", m_path);
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
 
@@ -205,22 +205,6 @@ namespace Hsys
         }
     }
 
-    public class UIEffectsItem
-    {
-        public List<object> myobj;
-        public UIEffectsItem()
-        {
-        }
-        public void LoadScript<T>() where T : new()
-        {
-            if (myobj == null) { return; }
-            for (int index = 0; index < myobj.Count; index += 1)
-            {
-                myobj.Add(new T());
-            }
-        }
-    }
-
     public class UIEffectsMenuItem
     {
         private static UIEffectsItem m_ui_effects = null;
@@ -241,22 +225,7 @@ namespace Hsys
         }
     }
 
-    //ImagesOr2DEffects 数据项
-    public class ImagesOr2DEffectsItem
-    {
-        public List<object> myobj;
-        public ImagesOr2DEffectsItem()
-        {
-        }
-        public void LoadScript<T>() where T : new()
-        {
-            if (myobj == null) { return; }
-            for (int index = 0; index < myobj.Count; index += 1)
-            {
-                myobj.Add(new T());
-            }
-        }
-    }
+
 
     //ImagesOr2DEffects 菜单项   
     public class ImagesOr2DEffectsMenuItem : Editor
@@ -285,31 +254,13 @@ namespace Hsys
         {
             Debug.Log("one");
         }
+    }
 
-        //ImagesOr2DEffects 数据项
+    //ImagesOr2DEffects 数据项
     public class ImagesOr2DEffectsItem
     {
         public List<object> myobj;
         public ImagesOr2DEffectsItem()
-        {
-        }
-        public void LoadScript<T>() where T : new()
-        { 
-            if (myobj == null) { return; }
-            for(int index = 0; index < myobj.Count; index+=1)
-            {
-                myobj.Add(new T());
-            }
-        }
-    }
-    }
-
-
-    //ModelsOr3DEffects 数据项
-    public class ModelsOr3DEffectsItem
-    {
-        public List<object> myobj;
-        public ModelsOr3DEffectsItem()
         {
         }
         public void LoadScript<T>() where T : new()
@@ -321,6 +272,8 @@ namespace Hsys
             }
         }
     }
+
+
 
 
     //ModelsOr3DEffects 菜单项
@@ -348,52 +301,16 @@ namespace Hsys
         }
     }
 
-    public class PostProcessingItem
-    {
-        private Camera m_camera;
-        public List<object> myobj;
-        public PostProcessingItem(ref Camera _camera)
-        {
-            m_camera = _camera;
-        }
-        public void LoadScript<T>() where T : new()
-        {
-            if (myobj == null) { return; }
-            for (int index = 0; index < myobj.Count; index += 1)
-            {
-                myobj.Add(new T());
-            }
-        }
-
-        public void LoadWaterBl()
-        {
-            if (myobj == null) { Debug.Log("未加载配置文件, 改为自加载"); }
-            if (m_camera == null) { Debug.Log("我不知道你的摄像机在哪 Add Component ==> Camera "); return; }
-            HsysWaterBl waterbl = m_camera.gameObject.GetComponent<HsysWaterBl>();
-            if(waterbl != null)
-            {
-                Debug.Log("已存在该组件 Coponent ==>  WaterBl");
-                if (waterbl._Material == null)
-                {
-                    waterbl._Material = new Material(Shader.Find("Hsys/WaterBl"));
-                }
-                return;
-            }
-            m_camera.gameObject.AddComponent<HsysWaterBl>();
-            waterbl = m_camera.gameObject.GetComponent<HsysWaterBl>();
-            waterbl._Material = new Material(Shader.Find("Hsys/WaterBl"));
-        }
-    }
 
     public class PostProcessingMenuItem
-    { 
+    {
         //静态实例
         private static PostProcessingItem m_post_processing = null;
         private static Camera m_camera = null;
 
         private static void CreatePostProcessing()
         {
-            if(m_camera == null)
+            if (m_camera == null)
             {
                 m_camera = GameObject.FindObjectOfType<Camera>();
             }
@@ -413,7 +330,7 @@ namespace Hsys
             m_post_processing.LoadWaterBl();
         }
 
-        
+
     }
 
 
@@ -453,9 +370,9 @@ namespace Hsys
 
         private void InitUseScriptObject(ref List<UseScriptObject> _description)
         {
-            if(m_load_script_info == null) { return; }
-            UseScriptObject u = new UseScriptObject() ;
-            for (int index = 0; index < m_load_script_info.info.Count; index+=1)
+            if (m_load_script_info == null) { return; }
+            UseScriptObject u = new UseScriptObject();
+            for (int index = 0; index < m_load_script_info.info.Count; index += 1)
             {
                 if (m_load_script_info.info[index] == null) { continue; }
 
@@ -483,6 +400,8 @@ namespace Hsys
 
 
 
+
+
     //默认配置路径
     namespace Private_Hsys
     {
@@ -492,7 +411,7 @@ namespace Hsys
             public void Create()
             {
                 Init();
-                if(m_default == null) { Debug.LogWarning("Not This Json File"); return; }
+                if (m_default == null) { Debug.LogWarning("Not This Json File"); return; }
                 ScriptInfo myscript = new ScriptInfo();
                 myscript.name = "xxx";
                 myscript.path = "xxx";
@@ -501,13 +420,13 @@ namespace Hsys
                 m_default.info.Add(myscript);
 
 
-                
+
                 System.IO.File.WriteAllText(GlobalVar.Default_path, JsonUtility.ToJson(m_default));
             }
 
             private void Init()
             {
-                if(m_default == null)
+                if (m_default == null)
                 {
                     m_default = new LoadScriptInfo();
                 }
