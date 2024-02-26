@@ -72,7 +72,7 @@ namespace Hsys
         private List<UseScriptObject> m_listofsptobj;
 
         //json配置 Default path
-        private string m_path = GlobalVar.Default_path;
+        private string m_path = GlobalSetting.GlobalVar.Default_path;
         private JsonLoadScriptInfo m_json_load_scriptinfo;
 
 
@@ -108,8 +108,8 @@ namespace Hsys
         }
 
         //=====================================================
-        private SerializedObject _serializedObject = null;
-        private SerializedProperty _serializedProperty = null;
+        //private SerializedObject _serializedObject = null;
+        //private SerializedProperty _serializedProperty = null;
         private modellevel _modelLevel = modellevel.None;
         //=====================================================
         //绘制插件内容
@@ -166,7 +166,31 @@ namespace Hsys
             //GUILayout.EndArea();
             GUILayout.EndHorizontal();
 
+            GUILayout.Space(10);
+            if(GUILayout.Button("生成噪声图"))
+            {
+                EditorWindow CreateNoise = EditorWindow.GetWindow(typeof(CreateNoiseWindow), true, "Noise");
+                //mywindow.maxSize = new Vector2(500f, 1000f);
+                CreateNoise.minSize = new Vector2(400f, 500f);
+                CreateNoise.Show();
 
+            }
+
+            GUILayout.Space(10);
+            if(GUILayout.Button("LUT图生成"))
+            {
+                EditorWindow CreateLUT = EditorWindow.GetWindow(typeof(CreateLUTWindow), true, "LUT");
+                CreateLUT.minSize = new Vector2(400f, 500f);
+                CreateLUT.Show();
+            }
+
+            GUILayout.Space(10);
+            if(GUILayout.Button("光线追踪"))
+            {
+                EditorWindow ImportRealLight = EditorWindow.GetWindow(typeof(ImportRealLightWindow), true, "Light");
+                ImportRealLight.minSize = new Vector2(400f, 500f);
+                ImportRealLight.Show();
+            }
 
             //GUILayout.BeginArea(new Rect(50, 50, 150, 150));
             //应用并刷新所有配置
@@ -203,6 +227,15 @@ namespace Hsys
         {
 
         }
+
+        //卸载掉文件
+        private void OnDestroy()
+        {
+            if (m_listofsptobj != null)
+            {
+                m_listofsptobj.Clear();
+            }
+        }
     }
 
     public class UIEffectsMenuItem
@@ -226,9 +259,8 @@ namespace Hsys
     }
 
 
-
     //ImagesOr2DEffects 菜单项   
-    public class ImagesOr2DEffectsMenuItem : Editor
+    public class ImagesOr2DEffectsMenuItem
     {
         //加载的脚本
         public ImagesOr2DEffectsItem m_image_or_2d_effects;
@@ -243,12 +275,6 @@ namespace Hsys
         }
 
 
-        private void OnEnable()
-        {
-            CreateImagesOr2DEffects();
-        }
-
-
         [UnityEditor.MenuItem("Tools/Hsys/Effects/2D/one"), Tooltip("test")]
         private static void One()
         {
@@ -256,28 +282,8 @@ namespace Hsys
         }
     }
 
-    //ImagesOr2DEffects 数据项
-    public class ImagesOr2DEffectsItem
-    {
-        public List<object> myobj;
-        public ImagesOr2DEffectsItem()
-        {
-        }
-        public void LoadScript<T>() where T : new()
-        {
-            if (myobj == null) { return; }
-            for (int index = 0; index < myobj.Count; index += 1)
-            {
-                myobj.Add(new T());
-            }
-        }
-    }
-
-
-
-
     //ModelsOr3DEffects 菜单项
-    public class ModelsOr3DEffectsMenuItem : Editor
+    public class ModelsOr3DEffectsMenuItem
     {
         public ModelsOr3DEffectsItem m_model_or_3d_effects = null;
         private void CreateModelsOr3DEffects()
@@ -289,18 +295,12 @@ namespace Hsys
             Debug.Log("ModelsOr3DEffects");
         }
 
-        private void OnEnable()
-        {
-            CreateModelsOr3DEffects();
-        }
-
         [UnityEditor.MenuItem("Tools/Hsys/Effects/3D/one"), Tooltip("test")]
         private static void One()
         {
             Debug.Log("one");
         }
     }
-
 
     public class PostProcessingMenuItem
     {
@@ -318,8 +318,6 @@ namespace Hsys
             {
                 m_post_processing = new PostProcessingItem(ref m_camera);
             }
-
-            Debug.Log("PostProcessingMenuItem");
         }
 
         [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/WaterBl"), Tooltip("屏幕水波纹效果(后处理)")]
@@ -330,10 +328,152 @@ namespace Hsys
             m_post_processing.LoadWaterBl();
         }
 
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/DepthOfField"), Tooltip("景深(后处理)")]
+        private static void DepthOfField()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadDepthOfField();
+        }
 
+        //============================================ BLUR ==================================================
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Blur/Box"), Tooltip("方框模糊(后处理)")]
+        private static void BoxBlur()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBlur("Box");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Blur/Bokeh"), Tooltip("散景模糊(后处理)")]
+        private static void BokeBlur()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBlur("Boke");
+        }
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Blur/TiltShift"), Tooltip("移轴模糊(后处理)")]
+        private static void TiltShiftBlur()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBlur("TiltShift");
+        }
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Blur/Iris"), Tooltip("光圈模糊(后处理)")]
+        private static void IrisBlur()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBlur("Iris");
+        }
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Blur/Grainy"), Tooltip("粒状模糊(后处理)")]
+        private static void GrainyBlur()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBlur("Grainy");
+        }
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Blur/Radial"), Tooltip("径向模糊(后处理)")]
+        private static void RadialBlur()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBlur("Radial");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Blur/Directional"), Tooltip("方向模糊(后处理)")]
+        private static void DirectionalBlur()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBlur("Directional");
+        }
+
+
+
+        //==============================Bloom==============================================
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Bloom/HDR"), Tooltip("HDR辉光(后处理)")]
+        private static void HDRBloom()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBloom("HDR");
+        }
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Bloom/NoHDR"), Tooltip("不带HDR辉光(后处理)")]
+        private static void NoHDRBloom()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadBloom("NoHDR");
+        }
+
+
+        //===========================Toning===============================================
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Toning/Brightness"), Tooltip("亮度(后处理)")]
+        private static void BrightnessToning()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadToning("Brightness");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Toning/Saturation"), Tooltip("饱和度(后处理)")]
+        private static void SaturationToning()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadToning("Saturation");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Toning/Vibrance"), Tooltip("自然饱和度(后处理)")]
+        private static void VibranceToning()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadToning("Vibrance");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Toning/Level"), Tooltip("色阶(后处理)")]
+        private static void LevelToning()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadToning("Level");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Toning/ContrastRatio"), Tooltip("对比度(后处理)")]
+        private static void ContrastRatioToning()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadToning("ContrastRatio");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Toning/ColorGraying"), Tooltip("色调分离(后处理)")]
+        private static void ColorGrayingToning()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadToning("ColorGraying");
+        }
+
+        //=====================================Lens========================================
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Lens/Twirl"), Tooltip("扭曲(后处理)")]
+        private static void TwirlLens()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadLens("Twirl");
+        }
+
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Lens/Twist"), Tooltip("旋转(后处理)")]
+        private static void TwistLens()
+        {
+            CreatePostProcessing();
+            if (m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadLens("Twist");
+        }
     }
-
-
 
     //==========================================================================================================
 
@@ -398,9 +538,84 @@ namespace Hsys
         }
     }
 
+    //================================================================================
+    public class CreateNoiseWindow : EditorWindow
+    {
+        //文件存储路径
+        private string m_path;
+        private void OnGUI()
+        {
+            GUILayout.Label("预览图");
+            GUILayout.Space(10);
+            m_path = EditorGUILayout.TextField("文件存储路径", m_path);
+            GUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("生成"))
+            {
+                Debug.Log("生成");
+            }
+            if(GUILayout.Button("保存"))
+            {
+                Debug.Log("保存");
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+    }
 
 
+    namespace Private_Hsys
+    {
+        public enum lutsize
+        {
+            _256X256,
+            _512X512,
+            _1024X1024,
+            _2048X2048
+        };
+    }
+    public class CreateLUTWindow : EditorWindow
+    {
+        private string m_path;
+        private lutsize m_preview_size;
+        private lutsize m_save_size;
+        private void OnGUI()
+        {
+            GUILayout.Label("预览图");
+            GUILayout.Space(10);
+            m_path = EditorGUILayout.TextField("文件存储路径", m_path);
+            GUILayout.Space(10);
 
+            EditorGUILayout.BeginHorizontal();
+            m_preview_size = (lutsize)EditorGUILayout.EnumPopup("预览分辨率", m_preview_size);
+            m_save_size = (lutsize)EditorGUILayout.EnumPopup("保存分辨率", m_save_size);
+
+            EditorGUILayout.EndHorizontal();
+            GUILayout.Space(10);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("生成"))
+            {
+                Debug.Log("生成");
+            }
+            if (GUILayout.Button("保存"))
+            {
+                Debug.Log("保存");
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+    }
+
+    public class ImportRealLightWindow : EditorWindow
+    {
+        private void OnGUI()
+        {
+            GUILayout.Label("光线追踪");
+
+            GUILayout.Space(10);
+            
+        }
+    }
 
     //默认配置路径
     namespace Private_Hsys
@@ -421,7 +636,7 @@ namespace Hsys
 
 
 
-                System.IO.File.WriteAllText(GlobalVar.Default_path, JsonUtility.ToJson(m_default));
+                System.IO.File.WriteAllText(GlobalSetting.GlobalVar.Default_path, JsonUtility.ToJson(m_default));
             }
 
             private void Init()
@@ -432,10 +647,7 @@ namespace Hsys
                 }
             }
         }
-
-        public struct GlobalVar
-        {
-            public const string Default_path = "C:\\Users\\ASUS-PC\\Documents\\图形\\AAa.JSON";
-        }
+        
+        
     }
 }

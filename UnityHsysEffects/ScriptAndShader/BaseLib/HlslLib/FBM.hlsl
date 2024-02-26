@@ -32,5 +32,20 @@ namespace Hsys
 		}
 		return t;
 	}
+	
+	//基于 FBM 的效果
+    void FBM_Clouds()
+    {
+		
+    }
+	
+    namespace Private_Hsys
+    {
+		void interpolate()
+		for(
+        int y = 0;y < 256; y+=step)
+    }
+    
+
 }
 #endif

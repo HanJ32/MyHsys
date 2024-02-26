@@ -2,7 +2,6 @@
 #define __NOISE_HLSL_
 //#include "Constant.hlsl"
 
-
 //测试完毕 除了Voronoi函数 无法正确显示效果
 
 //注: HLSL文件格式 VsTeXCommentsExtension 插件失效可以将 tex: 下的公式粘贴到支持 Markdown公式块 的软件中浏览
@@ -21,7 +20,7 @@ namespace Hsys
 #define Kzo 0.416666666667 // 1/2-1/6*2
 #define jitter 0.8 // smaller jitter gives less errors in F2
 #endif //#ifdef USE_NOISE_CONSTVAR
-
+    
 
 //学习:https://edu.uwa4d.com/lesson-detail/499/2434/0?isPreview=0
 
@@ -82,7 +81,8 @@ namespace Hsys
     {
         float f = 0.0;
         p = p * 7.0;
-    
+        
+
         f += 1.0000 * abs(noise(p));
         p = 2.0 * p;
         f += 0.5000 * abs(noise(p));
@@ -269,6 +269,7 @@ namespace Hsys
         return sqrt(d.xy); // F1 and F2
     }
     
+    
     float2 Cellular2x2(float2 uv, float strenge,float size)
     {
 #ifndef USE_NOISE_CONSTVAR //是否开启宏 USE_NOISE_CONSTVAR
@@ -358,6 +359,18 @@ namespace Hsys
                         dot(RandomNoiseSeed(i + float2(1.0, 1.0)), f - float2(1.0, 1.0)), u.x), u.y);
     }
     
+    //==============================================
+//    float GradientNoise(in float3 x)
+//    {
+//        float3 p = floor(x);
+//        float3 w = frac(x);
+//        
+//        //插值
+//        float3 u = w * w * w * (w * (w * 6.0 - 15.0) + 10.0);
+//
+//        float3 ga = hash(p + float3(0.0, 0.0, 0.0));
+//
+//    }
     //半精度好像没办法实现上述，精度缺失严重
 #endif //ifndef USE_HALF_DEAL
 #ifdef USE_HALF_DEAL
