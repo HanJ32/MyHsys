@@ -72,8 +72,18 @@ namespace Hsys
             return half4(hsv2rgb(hsv), mtex.a);
         }
         
+        half4 ColorEqualizer(sampler2D tex, float2 uv,half4 red, half4 green, half4 blue)
+        {
+            half4 mtex = tex2D(tex, uv);
+            return half4(dot(mtex.rgb, red.rgb) + red.w, dot(mtex.rgb, green.rgb) + green.w, dot(mtex.rgb, blue.rgb) + blue.w, half(1.0));
+        }
         
-
+        half4 ColorEqualizer(sampler2D tex, float2 uv, float4 tex_st, half4 red, half4 green, half4 blue)
+        {
+            uv = uv.xy * tex_st.xy + tex_st.zw;
+            half4 mtex = tex2D(tex, uv);
+            return half4(dot(mtex.rgb, red.rgb) + red.w, dot(mtex.rgb, green.rgb) + green.w, dot(mtex.rgb, blue.rgb) + blue.w, half(1.0));
+        }
     }
 }
 
