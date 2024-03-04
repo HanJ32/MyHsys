@@ -3,9 +3,6 @@ using Hsys.Blur;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityStandardAssets.ImageEffects;
-using static Unity.VisualScripting.Member;
 
 public class HsysBloom : MonoBehaviour
 {
@@ -13,6 +10,12 @@ public class HsysBloom : MonoBehaviour
     public Hsys.Bloom.BloomEffects m_bloomeffects = new BloomEffects();
     private int passnum = 0;
     private bool m_isjmpdefaultrender = false;
+
+    private void OnEnable()
+    {
+        Hsys.HsysGetYourNeadVarOfClass.SetMonoClassVar(this);
+    }
+
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
         if (m_bloom.Count == 0) { Graphics.Blit(source, destination); return; }
@@ -69,6 +72,7 @@ public class HsysBloom : MonoBehaviour
     }
     public void AddPushBloomData()
     {
+        if(m_bloom.Count >= 8) { return; }
         Hsys.Bloom.BloomData add_item = new Hsys.Bloom.BloomData();
         add_item.m_BloomAcaccuracy = Hsys.GlobalSetting.accuracy.Half;
         m_bloom.Add(add_item);

@@ -20,6 +20,7 @@ namespace Hsys
         }
         public struct GlobalVar
         {
+            public const int Class_Size = 28;
             public const string Default_path = "C:\\Users\\ASUS-PC\\Documents\\м╪пн\\AAa.JSON";
         }
         //public class HsysGlobalSetting { }

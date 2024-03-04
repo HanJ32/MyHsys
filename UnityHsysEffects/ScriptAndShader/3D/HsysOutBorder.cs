@@ -6,10 +6,13 @@ using UnityEngine;
 public class HsysOutBorder : MonoBehaviour
 {
     [Tooltip("OutBorder 处理队列")][SerializeField] private List<Hsys.OutBorder.OutBorderData> m_outborder;
-    public Hsys.OutBorder.OutBorderEffects m_outbordereffects = new Hsys.OutBorder.OutBorderEffects();
+    private Hsys.OutBorder.OutBorderEffects m_outbordereffects = new Hsys.OutBorder.OutBorderEffects();
     private int passnum = 0;
     private bool m_isjmpdefaultrender = false;
-
+    private void OnEnable()
+    {
+        Hsys.HsysGetYourNeadVarOfClass.SetMonoClassVar(this);
+    }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
@@ -65,8 +68,9 @@ public class HsysOutBorder : MonoBehaviour
     {
         m_outborder.Clear();
     }
-    public void AddPushAOData()
+    public void AddPushOutBorderData()
     {
+        if(m_outborder.Count <= 8) { return; }
         Hsys.OutBorder.OutBorderData add_item = new Hsys.OutBorder.OutBorderData();
         add_item.m_OutBorderAccuracy = Hsys.GlobalSetting.accuracy.Half;
         m_outborder.Add(add_item);
@@ -74,7 +78,7 @@ public class HsysOutBorder : MonoBehaviour
         CaseTypeOfShader(ref index);
     }
 
-    public void DeletePopAOData()
+    public void DeletePopOutBorderData()
     {
         if (m_outborder.Count == 0) return;
         int index = m_outborder.Count - 1;
@@ -115,7 +119,7 @@ namespace Hsys
             {
                 switch (_mode)
                 {
-                    case "SSAO":
+                    case "OutLine":
                         Hsys.OutBorder.OutBorderData _OutLine = new Hsys.OutBorder.OutBorderData();
                         _OutLine.m_IsEnable = true;
                         _OutLine.m_OutBorderAccuracy = Hsys.GlobalSetting.accuracy.Half;
@@ -131,10 +135,15 @@ namespace Hsys
             {
                 switch (_mode)
                 {
-                    case "OutBorder":
-                        outborder.GetOutBorderDataList()[index]._Material = new Material(Shader.Find("Hsys/ZAO/SSAO"));
+                    case "OutLine":
+                        outborder.GetOutBorderDataList()[index]._Material = new Material(Shader.Find("Hsys/ZOutBorder/OutLine"));
                         break;
                 }
+            }
+
+            public void OutLine(ref List<Hsys.OutBorder.OutBorderData> outborderdata, ref int index)
+            {
+                //outborderdata[index]._Material.Set
             }
         }
 

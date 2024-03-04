@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityStandardAssets.ImageEffects;
 
 namespace Hsys
 {
@@ -46,9 +46,43 @@ namespace Hsys
     public class ModelsOr3DEffectsItem
     {
         public List<object> myobj;
-        public ModelsOr3DEffectsItem()
+
+        private Hsys.Effect3DBase.Effect3DBaseEffect m_effect3dbaseeffect = new Effect3DBase.Effect3DBaseEffect();
+
+        private Hsys3DEffectBase hsys3DEffectbase;
+        private HsysOutBorder hsysoutborder;
+
+        //========================
+        private GameObject __pr;
+        private GameObject __pr_list;
+
+        //===================================================================
+        //private Hsys.Effect3DBase.Hsys3DEffectHierarchyMenu m_hierarchymenu;
+        //===================================================================
+        public void InitGameObject()
         {
+            if (GameObject.Find("3DEffectBase(Hsys)") == null)
+            {
+                __pr = new GameObject("3DEffectBase(Hsys)");
+                __pr_list = new GameObject("3DEffectList(Hsys)");
+                __pr_list.transform.SetParent(__pr.transform);
+
+            }
+            else
+            {
+                if (GameObject.Find("3DEffectList(Hsys)") == null)
+                {
+                    __pr_list = new GameObject("3DEffectList(Hsys)");
+                    __pr_list.transform.SetParent(__pr.transform);
+                }
+            }
+            if (__pr == null)
+            {
+                __pr = GameObject.Find("3DEffectBase(Hsys)");
+                __pr_list = GameObject.Find("3DEffectList(Hsys)");
+            }
         }
+        //=========================
         public void LoadScript<T>() where T : new()
         {
             if (myobj == null) { return; }
@@ -57,8 +91,54 @@ namespace Hsys
                 myobj.Add(new T());
             }
         }
-    }
 
+        public void LoadEffect3DBase()
+        {
+            InitGameObject();
+            if (myobj == null) { Debug.Log("未加载配置文件, 改为自加载"); }
+            if (__pr == null) { Debug.Log("我不知道当前的组件在哪 Add Component ==> 3DEffectBase(Hsys) "); }
+            if (__pr.gameObject.TryGetComponent<Hsys3DEffectBase>(out Hsys3DEffectBase effect3dbase))
+            {
+                Debug.Log("已存在该组件 Coponent ==>  Hsys3DEffectBase");
+                return;
+            }
+            __pr.AddComponent<Hsys3DEffectBase>();
+            hsys3DEffectbase = __pr.GetComponent<Hsys3DEffectBase>();
+            if (hsys3DEffectbase == null) { Debug.Log("添加组件失败 Hsys3DEffectBase"); return; }
+            //effect3dbase = __pr.GetComponent<Hsys3DEffectBase>();
+            //effect3dbase.AddPush3DEffectData();
+        }
+
+        //====================================================================
+        private HsysOutBorder[] __outborder;
+        public void LoadOutBorderOurLine()
+        {
+            Debug.Log("LoadOutBorderOurLine");
+            InitGameObject();
+            if (myobj == null) { Debug.Log("未加载配置文件, 改为自加载"); }
+            __outborder = __pr_list.gameObject.GetComponentsInChildren<HsysOutBorder>();
+            if(__outborder == null) 
+            { 
+                GameObject mgobj = new GameObject();
+                mgobj.AddComponent<HsysOutBorder>();
+                return;
+            }
+            for (int index = 0; index < __outborder.Length; index += 1)
+            {
+                if (__outborder[index] == null)
+                {
+                    __outborder[index].AddComponent<HsysOutBorder>();
+                    hsysoutborder = __outborder[index].GetComponent<HsysOutBorder>();
+                    if (hsysoutborder == null) { Debug.LogWarning("无法添加该组件 Coponent ==>  OutBorderLine(HsysOutBorder)"); }
+                }else
+                {
+                    Debug.Log("已存在该组件 Coponent ==>  HsysOutBorder");
+                    continue;
+                }
+                
+            }
+        }
+    }
     //PostProcessingItem 数据项
     public class PostProcessingItem
     {
@@ -166,13 +246,13 @@ namespace Hsys
             if (m_camera.gameObject.TryGetComponent<HsysBloom>(out HsysBloom bloom))
             {
                 Debug.Log("已存在该组件 Coponent ==> DepthOfField");
-                if(bloom.GetBloomDataList() == null)
+                if (bloom.GetBloomDataList() == null)
                 {
                     bloom.GetBloomDataList() = new List<Bloom.BloomData>();
                 }
 
                 if (bloom.GetBloomDataList().Count <= 0) return;
-                for(int index = 0; index < bloom.GetBloomDataList().Count; index +=1)
+                for (int index = 0; index < bloom.GetBloomDataList().Count; index += 1)
                 {
                     if (bloom.GetBloomDataList()[index]._Material == null)
                     {
@@ -183,13 +263,13 @@ namespace Hsys
             }
             m_camera.gameObject.AddComponent<HsysBloom>();
             if (!m_camera.gameObject.TryGetComponent<HsysBloom>(out bloom)) return;
-            if(bloom.GetBloomDataList() == null)
+            if (bloom.GetBloomDataList() == null)
             {
                 bloom.GetBloomDataList() = new List<Bloom.BloomData>();
             }
             m_bloomeffect.CaseBloom(ref _mode, ref bloom);
-            if(bloom.GetBloomDataList().Count <= 0) return;
-            for(int index = 0; index < bloom.GetBloomDataList().Count; index +=1)
+            if (bloom.GetBloomDataList().Count <= 0) return;
+            for (int index = 0; index < bloom.GetBloomDataList().Count; index += 1)
             {
                 if (bloom.GetBloomDataList()[index]._Material == null)
                 {

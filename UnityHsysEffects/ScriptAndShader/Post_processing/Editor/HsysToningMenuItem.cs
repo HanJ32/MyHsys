@@ -118,7 +118,9 @@ public class HsysToningMenuItem : Editor
                 break;
             case Hsys.Toning.toningtype.ColorGrading:
                 ToningColorGradingMenu(ref index);
-
+                break;
+            case Hsys.Toning.toningtype.ColorEqualizer:
+                TongingColorEqualizer(ref index);
                 break;
         }
     }
@@ -181,5 +183,59 @@ public class HsysToningMenuItem : Editor
         m_hsystoning[index].Hue_Saturation_Value.Saturation = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Hue_Saturation_Value.Saturation, 0.01f, 2f);
         tooltip.text = "Hue_Saturation_Value(Value)";
         m_hsystoning[index].Hue_Saturation_Value.Value = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Hue_Saturation_Value.Value, 0.01f, 1f);
+    }
+
+
+    private enum redgreenblue
+    {
+        RED, GREEN, BLUE
+    }
+    private redgreenblue is_redgreenblue;
+    private void TongingColorEqualizer(ref int index)
+    {
+        EditorGUILayout.BeginVertical("box");
+        tooltip.tooltip = "RGB通道";
+        tooltip.text = "RGB Cennel";
+        is_redgreenblue = (redgreenblue)EditorGUILayout.EnumPopup(tooltip, is_redgreenblue);
+        switch(is_redgreenblue)
+        {
+            case redgreenblue.RED:
+                tooltip.text = "RGB Red(X)";
+                m_hsystoning[index].Red.x = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Red.x, -1f, 1f);
+                tooltip.text = "RGB Red(Y)";
+                m_hsystoning[index].Red.y = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Red.y, -1f, 1f);
+                tooltip.text = "RGB Red(Z)";
+                m_hsystoning[index].Red.z = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Red.z, -1f, 1f);
+                tooltip.text = "RGBC(X)";
+                m_hsystoning[index].RGBC.x = EditorGUILayout.Slider(tooltip, m_hsystoning[index].RGBC.x, -1f, 1f);
+                break;
+            case redgreenblue.GREEN:
+                tooltip.text = "RGB Green(X)";
+                m_hsystoning[index].Green.x = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Green.x, -1f, 1f);
+                tooltip.text = "RGB Green(Y)";
+                m_hsystoning[index].Green.y = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Green.y, -1f, 1f);
+                tooltip.text = "RGB Green(Z)";
+                m_hsystoning[index].Green.z = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Green.z, -1f, 1f);
+                tooltip.text = "RGBC(Y)";
+                m_hsystoning[index].RGBC.y = EditorGUILayout.Slider(tooltip, m_hsystoning[index].RGBC.y, -1f, 1f);
+                break;
+            case redgreenblue.BLUE:
+                tooltip.text = "RGB Blue(X)";
+                m_hsystoning[index].Blue.x = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Blue.x, -1f, 1f);
+                tooltip.text = "RGB Blue(Y)";
+                m_hsystoning[index].Blue.y = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Blue.y, -1f, 1f);
+                tooltip.text = "RGB Blue(Z)";
+                m_hsystoning[index].Blue.z = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Blue.z, -1f, 1f);
+                tooltip.text = "RGBC(Z)";
+                m_hsystoning[index].RGBC.z = EditorGUILayout.Slider(tooltip, m_hsystoning[index].RGBC.z, -1f, 1f);
+                break;
+        }
+        EditorGUILayout.EndVertical();
+        tooltip.tooltip = "强度";
+        tooltip.text = "Strength";
+        m_hsystoning[index].Strength = EditorGUILayout.Slider(tooltip, m_hsystoning[index].Strength, 0.01f, 1f);
+        tooltip.text = "RGB Blue(Y)";
+
+
     }
 }

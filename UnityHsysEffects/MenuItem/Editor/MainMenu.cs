@@ -2,9 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Security.Cryptography.X509Certificates;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -285,20 +282,26 @@ namespace Hsys
     //ModelsOr3DEffects 菜单项
     public class ModelsOr3DEffectsMenuItem
     {
-        public ModelsOr3DEffectsItem m_model_or_3d_effects = null;
-        private void CreateModelsOr3DEffects()
+        public static ModelsOr3DEffectsItem m_model_or_3d_effects = null;
+        private static void CreateModelsOr3DEffects()
         {
             if (m_model_or_3d_effects == null)
             {
                 m_model_or_3d_effects = new ModelsOr3DEffectsItem();
             }
-            Debug.Log("ModelsOr3DEffects");
         }
 
-        [UnityEditor.MenuItem("Tools/Hsys/Effects/3D/one"), Tooltip("test")]
-        private static void One()
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/MainListSetting/3D Effect List"), Tooltip("3DealList")]
+        private static void Effect3DList()
         {
-            Debug.Log("one");
+            CreateModelsOr3DEffects();
+            m_model_or_3d_effects.LoadEffect3DBase();
+        }
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/3D/OutBorder/OutLine"), Tooltip("OutLine")]
+        private static void OutBorderOutLine()
+        {
+            CreateModelsOr3DEffects();
+            m_model_or_3d_effects.LoadOutBorderOurLine();
         }
     }
 
@@ -457,6 +460,13 @@ namespace Hsys
             m_post_processing.LoadToning("ColorGraying");
         }
 
+        [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Toning/ColorEqualizer"), Tooltip("色彩均衡器(后处理)")]
+        private static void ColorEqualizerToning()
+        {
+            CreatePostProcessing();
+            if(m_post_processing == null) { Debug.LogWarning("[Hsys Effects PostProcessing Warning] 我不知道你的摄像机在哪 Add Component ==> Camera"); return; }
+            m_post_processing.LoadToning("ColorEqualizer");
+        }
         //=====================================Lens========================================
         [UnityEditor.MenuItem("Tools/Hsys/Effects/PostProcessing/Lens/Twirl"), Tooltip("扭曲(后处理)")]
         private static void TwirlLens()

@@ -53,6 +53,9 @@ public class HsysToning : MonoBehaviour
                 case Hsys.Toning.toningtype.ColorGrading:
                     m_isjmpdefaultrender = m_toningeffects.ToningColorGraying(ref m_toning,ref index);
                     break;
+                case Hsys.Toning.toningtype.ColorEqualizer:
+                    m_isjmpdefaultrender = m_toningeffects.ToningColorEqualizer(ref m_toning,ref index);
+                    break;
             }
             //TODO:多处理效果
             if (!m_isjmpdefaultrender) { Graphics.Blit(source, destination, m_toning[index]._Material, passnum); }
@@ -75,7 +78,7 @@ public class HsysToning : MonoBehaviour
                 }
                 if (m_toning[index]._Material.shader.name == "Hsys/ZToning/Brightness") break;
                 m_toning[index]._Material.shader = Shader.Find("Hsys/ZToning/Brightness");
-                m_toning[index]._Material.name = "Hsys/ZBloom/Brightness";
+                m_toning[index]._Material.name = "Hsys/ZToning/Brightness";
                 break;
             case Hsys.Toning.toningtype.Saturation:
                 if (m_toning[index]._Material == null)
@@ -84,7 +87,7 @@ public class HsysToning : MonoBehaviour
                 }
                 if (m_toning[index]._Material.shader.name == "Hsys/ZToning/Saturation") break;
                 m_toning[index]._Material.shader = Shader.Find("Hsys/ZToning/Saturation");
-                m_toning[index]._Material.name = "Hsys/ZBloom/Saturation";
+                m_toning[index]._Material.name = "Hsys/ZToning/Saturation";
                 break;
             case Hsys.Toning.toningtype.Vibrance:
                 if (m_toning[index]._Material == null)
@@ -93,7 +96,7 @@ public class HsysToning : MonoBehaviour
                 }
                 if (m_toning[index]._Material.shader.name == "Hsys/ZToning/Vibrance") break;
                 m_toning[index]._Material.shader = Shader.Find("Hsys/ZToning/Vibrance");
-                m_toning[index]._Material.name = "Hsys/ZBloom/Vibrance";
+                m_toning[index]._Material.name = "Hsys/ZToning/Vibrance";
                 break;
             case Hsys.Toning.toningtype.Level:
                 if (m_toning[index]._Material == null)
@@ -102,7 +105,7 @@ public class HsysToning : MonoBehaviour
                 }
                 if (m_toning[index]._Material.shader.name == "Hsys/ZToning/Level") break;
                 m_toning[index]._Material.shader = Shader.Find("Hsys/ZToning/Level");
-                m_toning[index]._Material.name = "Hsys/ZBloom/Level";
+                m_toning[index]._Material.name = "Hsys/ZToning/Level";
                 break;
 
             case Hsys.Toning.toningtype.ContrastRatio:
@@ -112,7 +115,7 @@ public class HsysToning : MonoBehaviour
                 }
                 if (m_toning[index]._Material.shader.name == "Hsys/ZToning/ContrastRatio") break;
                 m_toning[index]._Material.shader = Shader.Find("Hsys/ZToning/ContrastRatio");
-                m_toning[index]._Material.name = "Hsys/ZBloom/ContrastRatio";
+                m_toning[index]._Material.name = "Hsys/ZToning/ContrastRatio";
                 break;
             case Hsys.Toning.toningtype.ColorGrading:
                 if (m_toning[index]._Material == null)
@@ -121,7 +124,16 @@ public class HsysToning : MonoBehaviour
                 }
                 if (m_toning[index]._Material.shader.name == "Hsys/ZToning/ColorGrading") break;
                 m_toning[index]._Material.shader = Shader.Find("Hsys/ZToning/ColorGrading");
-                m_toning[index]._Material.name = "Hsys/ZBloom/ColorGrading";
+                m_toning[index]._Material.name = "Hsys/ZToning/ColorGrading";
+                break;
+            case Hsys.Toning.toningtype.ColorEqualizer:
+                if (m_toning[index] == null)
+                {
+                    m_toning[index]._Material = new Material(Shader.Find("Hsys/ZToning/ColorEqualizer"));
+                }
+                if (m_toning[index]._Material.shader.name == "Hsys/ZToning/ColorEqualizer") break;
+                m_toning[index]._Material.shader = Shader.Find("Hsys/ZToning/ColorEqualizer");
+                m_toning[index]._Material.name = "Hsys/ZToning/ColorEqualizer";
                 break;
         }
     }
@@ -131,6 +143,7 @@ public class HsysToning : MonoBehaviour
     }
     public void AddPushBloomData()
     {
+        if(m_toning.Count >= 8) { return; }
         Hsys.Toning.ToningData add_item = new Hsys.Toning.ToningData();
         add_item.m_ToningAccuracy = Hsys.GlobalSetting.accuracy.Half;
         m_toning.Add(add_item);
@@ -162,7 +175,8 @@ namespace Hsys
             Vibrance,
             Level,
             ContrastRatio,
-            ColorGrading
+            ColorGrading,
+            ColorEqualizer
         }
         [System.Serializable]
         public class ToningData
@@ -174,6 +188,8 @@ namespace Hsys
                 MaxInput = 0.8f;
                 MinOutput = 0.01f;
                 MaxOutput = 0.8f;
+
+                Red = Green = Blue= RGBC = Vector3.one;
             }
             public bool m_IsEnable;
             public toningtype m_ToningType;
@@ -190,6 +206,10 @@ namespace Hsys
             public float MinOutput;
             public float MaxOutput;
 
+            public Vector3 Red;
+            public Vector3 Green;
+            public Vector3 Blue;
+            public Vector3 RGBC;
             //材质
             public Material _Material;
             public bool is_Deal;
@@ -248,7 +268,7 @@ namespace Hsys
                         Hsys.Toning.ToningData _ContrastRatio = new Hsys.Toning.ToningData();
                         _ContrastRatio.m_IsEnable = true;
                         _ContrastRatio.m_ToningAccuracy = Hsys.GlobalSetting.accuracy.Half;
-                        _ContrastRatio.m_ToningType = Hsys.Toning.toningtype.Level;
+                        _ContrastRatio.m_ToningType = Hsys.Toning.toningtype.ContrastRatio;
                         _ContrastRatio.is_Deal = false;
                         toning.GetToningDataList().Add(_ContrastRatio);
                         break;
@@ -256,9 +276,17 @@ namespace Hsys
                         Hsys.Toning.ToningData _ColorGrading = new Hsys.Toning.ToningData();
                         _ColorGrading.m_IsEnable = true;
                         _ColorGrading.m_ToningAccuracy = Hsys.GlobalSetting.accuracy.Half;
-                        _ColorGrading.m_ToningType = Hsys.Toning.toningtype.Level;
+                        _ColorGrading.m_ToningType = Hsys.Toning.toningtype.ColorGrading;
                         _ColorGrading.is_Deal = false;
                         toning.GetToningDataList().Add(_ColorGrading);
+                        break;
+                    case "ColorEqualizer":
+                        Hsys.Toning.ToningData _ColorEqualizer = new Hsys.Toning.ToningData();
+                        _ColorEqualizer.m_IsEnable = true;
+                        _ColorEqualizer.m_ToningAccuracy = Hsys.GlobalSetting.accuracy.Half;
+                        _ColorEqualizer.m_ToningType = Hsys.Toning.toningtype.ColorEqualizer;
+                        _ColorEqualizer.is_Deal = false;
+                        toning.GetToningDataList().Add(_ColorEqualizer);
                         break;
                 }
             }
@@ -284,6 +312,9 @@ namespace Hsys
                         break;
                     case "ColorGrading":
                         toning.GetToningDataList()[index]._Material = new Material(Shader.Find("Hsys/ZToning/ColorGrading"));
+                        break;
+                    case "ColorEqualizer":
+                        toning.GetToningDataList()[index]._Material = new Material(Shader.Find("Hsys/ZToning/ColorEqualizer"));
                         break;
                 }
             }
@@ -321,6 +352,16 @@ namespace Hsys
             {
                 toningdata[index]._Material.SetFloat("_Strength", toningdata[index].Strength);
                 toningdata[index]._Material.SetVector("_HUE_Saturation_Value", new Vector3(toningdata[index].Hue_Saturation_Value.HUE, toningdata[index].Hue_Saturation_Value.Saturation, toningdata[index].Hue_Saturation_Value.Value));
+                return false;
+            }
+
+            public bool ToningColorEqualizer(ref List<Hsys.Toning.ToningData> toningdata, ref int index)
+            {
+                toningdata[index]._Material.SetVector("_Red", new Vector3(toningdata[index].Red.x, toningdata[index].Red.y, toningdata[index].Red.z));
+                toningdata[index]._Material.SetVector("_Green", new Vector3(toningdata[index].Green.x, toningdata[index].Green.y, toningdata[index].Green.z));
+                toningdata[index]._Material.SetVector("_Blue", new Vector3(toningdata[index].Blue.x, toningdata[index].Blue.y, toningdata[index].Blue.z));
+                toningdata[index]._Material.SetVector("_RGBC", new Vector3(toningdata[index].RGBC.x, toningdata[index].RGBC.y, toningdata[index].RGBC.z));
+                toningdata[index]._Material.SetFloat("_Strength", toningdata[index].Strength);
                 return false;
             }
         }

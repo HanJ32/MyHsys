@@ -138,6 +138,7 @@ public class HsysBlur : MonoBehaviour
 
     public void AddPushBlurData()
     {
+        if(m_blur.Count >= 8) { return; }
         Hsys.Blur.BlurData add_item = new Hsys.Blur.BlurData();
         add_item.m_BlurAccuracy = Hsys.GlobalSetting.accuracy.Half;
         m_blur.Add(add_item);

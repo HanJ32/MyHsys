@@ -1,9 +1,6 @@
 using Hsys.Lens;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
-using static Unity.VisualScripting.Member;
 
 //[ExecuteInEditMode]
 public class HsysLens : MonoBehaviour
@@ -85,6 +82,7 @@ public class HsysLens : MonoBehaviour
     }
     public void AddPushLensData()
     {
+        if(m_lens.Count >= 8) { return; }
         Hsys.Lens.LensData add_item = new Hsys.Lens.LensData();
         add_item.m_LensAccuracy = Hsys.GlobalSetting.accuracy.Half;
         m_lens.Add(add_item);
